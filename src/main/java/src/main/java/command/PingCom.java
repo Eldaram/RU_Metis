@@ -4,6 +4,8 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.List;
+
 public class PingCom implements TemplateCom{
     private String name;
 
@@ -22,7 +24,7 @@ public class PingCom implements TemplateCom{
     }
 
     @Override
-    public void msg(MessageReceivedEvent event)
+    public void msg(MessageReceivedEvent event, List<String> parsed)
     {
         MessageChannel channel = event.getChannel();
         long time = System.currentTimeMillis();
