@@ -1,4 +1,4 @@
-package src.main.java.ready;
+package src.main.java.listener;
 
 
 import net.dv8tion.jda.api.events.GenericEvent;

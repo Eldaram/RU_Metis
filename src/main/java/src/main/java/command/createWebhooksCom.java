@@ -3,6 +3,9 @@ package src.main.java.command;
 import net.dv8tion.jda.api.entities.Icon;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,6 +14,9 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 public class createWebhooksCom implements TemplateCom{
+
+    private static final String name = "createWebhooks";
+
     @Override
     public void slash(SlashCommandInteractionEvent event) {
 
@@ -28,6 +34,15 @@ public class createWebhooksCom implements TemplateCom{
 
     @Override
     public String getName() {
-        return "createWebhooks";
+        return name;
+    }
+
+    @Override
+    public CommandListUpdateAction addSlashCom(CommandListUpdateAction list)
+    {
+        list.addCommands(Commands.slash(name, "Créer un Webhook")
+                .addOption(OptionType.STRING, "Nom", "Le nom du webooks")
+                .addOption(OptionType.ATTACHMENT, "Image", "L'image du Webhooks"));
+        return list;
     }
 }
