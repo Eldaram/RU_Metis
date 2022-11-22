@@ -14,7 +14,7 @@ import java.util.List;
 public class Metis {
 
     public static void main(String[] args) {
-        JDABuilder builder = JDABuilder.createDefault("NTUxMzEzNDMzMjYyNTU1MTM3.XHo4pQ.HwHhWFeGKHRvRHQ_T_dYPz1fgzk");
+        JDABuilder builder = JDABuilder.createDefault("Add token here");
         builder.addEventListeners(new ReadyListener())
                 .addEventListeners(new MetisComListener())
                 .setActivity(Activity.playing("Tests en cours..."));
