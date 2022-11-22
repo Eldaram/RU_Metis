@@ -10,7 +10,7 @@ public class DiceTest {
         String str;
         Integer test;
         for (int i = 0; i < 100; i++) {
-            str = ComputeCom.compute("1d100");
+            str = ComputeCom.compute("1d100").result;
             test = Integer.parseInt(str);
             Assert.assertTrue("Error on " + test + ", " + i + ".",
                     1 <= test && 100 >= test);

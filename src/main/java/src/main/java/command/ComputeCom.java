@@ -14,6 +14,7 @@ import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 import src.main.java.errors.NotValidDice;
 import src.main.java.tools.Parsing;
+import src.main.java.tools.RollResult;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -26,73 +27,94 @@ public class ComputeCom implements TemplateCom{
     public ComputeCom() {
     }
 
-    private static StringBuilder diceRoll(StringBuilder str, Integer pos) throws NotValidDice {
+    private static RollResult diceRoll(RollResult roll, Integer pos) throws NotValidDice {
         // get num of dice
         int start = pos;
-        while (start > 0 && str.charAt(start - 1) >= '0' && str.charAt(start - 1) <= '9') {
+        while (start > 0 && roll.stringBuilder.charAt(start - 1) >= '0' &&
+                roll.stringBuilder.charAt(start - 1) <= '9') {
             start -= 1;
         }
         if (start == pos) {
             throw new NotValidDice(pos);
         }
-        int numDices = Integer.parseInt(str.substring(start, pos));
+        int numDices = Integer.parseInt(roll.stringBuilder.substring(start, pos));
         // get type of dices
         int end = pos;
-        while (end + 1 < str.length() && str.charAt(end + 1) >= '0' && str.charAt(end + 1) <= '9') {
+        while (end + 1 < roll.stringBuilder.length() && roll.stringBuilder.charAt(end + 1) >= '0' &&
+                roll.stringBuilder.charAt(end + 1) <= '9') {
             end += 1;
         }
         if (end == pos)
             throw new NotValidDice(pos);
         end += 1;
-        int diceType = Integer.parseInt(str.substring(pos + 1, end));
+        int diceType = Integer.parseInt(roll.stringBuilder.substring(pos + 1, end));
         // replace all with the result
         Random rand = new Random(); // Instance a seed of randomness
         Integer finalResult = 0;
+        Integer tmp = 0;
         for (int i = 0; i < numDices; i++) {
-            finalResult += rand.nextInt(diceType) + 1;
+            tmp = rand.nextInt(diceType) + 1;
+            finalResult += tmp;
+            roll.totalResult += (float) tmp / diceType;
         }
-        str.replace(start, end, finalResult.toString());
-        return str;
+        roll.nmbDices += numDices;
+        roll.stringBuilder.replace(start, end, finalResult.toString());
+        return roll;
     }
 
-    public static String diceRoller(String str) throws NotValidDice {
+    public static RollResult diceRoller(String str) throws NotValidDice {
         StringBuilder builder = new StringBuilder(str);
+        RollResult roll = new RollResult(builder, null, 0, 0, false, null);
         List<Integer> pos = new ArrayList<>();
         for (int i = 0; i < str.length(); i++) {
             if (str.charAt(i) == 'd' || str.charAt(i) == 'D')
                 pos.add(i);
         }
         for (Integer e: Lists.reverse(pos)) {
-            builder = diceRoll(builder, e);
+            roll = diceRoll(roll, e);
         }
-        return builder.toString();
+        return roll;
     }
 
-    public static String compute(String str) {
+    public static RollResult compute(String str) {
         if (str == null || str.contentEquals(""))
-            return "0";
+            return null;
         try {
-            str = diceRoller(str);
+            RollResult roll = diceRoller(str);
+            str = roll.stringBuilder.toString();
             Expression expr = new ExpressionBuilder(str).build();
-            return Long.toString(Math.round(expr.evaluate()));
+            roll.result = Long.toString(Math.round(expr.evaluate()));
+            return roll;
         } catch (NotValidDice e) {
-            return "Les dès n'ont pas été lancé correctement...";
+            RollResult roll = new RollResult("Les dès n'ont pas été lancé correctement...");
+            return roll;
         } catch (ArithmeticException e) {
-            return "Division par zero !";
+            RollResult roll = new RollResult("Division par zero !");
+            return roll;
         } catch (IllegalArgumentException e) {
-            return "La formule n'est pas correcte";
+            RollResult roll = new RollResult("La formule n'est pas correcte");
+            return roll;
         }
+    }
+
+    private static Color determineColor(float aFloat)
+    {
+        int a = (int) (255 * aFloat);
+        return new Color(a,a, 255);
     }
 
     private static MessageEmbed buildMessage(String content) {
         EmbedBuilder mesage = new EmbedBuilder();
+        Color color = new Color(255, 153, 0);
         if (content == null) {
             mesage.addField("Resultat :", "Le message n'est pas correct", false);
         }
         else {
-            mesage.addField("Resultat :", compute(content), false);
+            RollResult roll = compute(content);
+            mesage.addField("Resultat :", roll.stringBuilder.toString(), false);
+            color = determineColor((float) roll.totalResult / roll.nmbDices);
         }
-        mesage.setColor(new Color(255, 153, 0));
+        mesage.setColor(color);
         return mesage.build();
     }
 
