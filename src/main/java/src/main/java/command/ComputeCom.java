@@ -123,6 +123,7 @@ public class ComputeCom implements TemplateCom{
         event.reply("En cours...")
                 .flatMap(v -> event.getHook().editOriginalEmbeds(
                         buildMessage(event.getOption("content").getAsString()))
+                ).flatMap(v -> event.getHook().editOriginal("")
                 ).queue(); // Queue both reply and edit
     }
 
